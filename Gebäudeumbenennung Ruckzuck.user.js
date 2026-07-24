@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [LSS] Gebäudeumbenennung Ruckzuck
 // @namespace    https://github.com/Haijo18/Leitstellenspiel-Skripte
-// @version      1.0
+// @version      1.0.1
 // @description  Dieses Skript ermöglicht das einfache Umbenennen von Gebäuden direkt über die Gebäudeübersicht der Leitstelle.
 // @author       Haijo18
 // @match        https://www.leitstellenspiel.de/buildings/*
@@ -50,8 +50,9 @@
                         if (newName) {
 
                             // Nötige Parameter suchen: ID und Personal (Soll)
-                            const buildingId = row.querySelector(".personal_count_target_edit_button").getAttribute("building_id");
-                            const personalCountTarget = row.querySelector("#building_personal_count_target_" + buildingId).textContent.trim();
+                            const buildingId = buildingLink.href.split("/").pop();
+                            const personalCountTargetDiv = row.querySelector("#building_personal_count_target_" + buildingId);
+                            const personalCountTarget = personalCountTargetDiv ? personalCountTargetDiv.textContent.trim() : null;
 
                             sendPostRequest(personalCountTarget, buildingId, newName, buildingLink);
                         }
@@ -82,7 +83,9 @@
         formData.append("_method", "patch");
         formData.append(csrfParam, csrfToken);
         formData.append("building[name]", name);
-        formData.append("building[personal_count_target]", personalCountTarget);
+        if (personalCountTarget != null) {
+            formData.append("building[personal_count_target]", personalCountTarget);
+        }
         formData.append("building[leitstelle_building_id]", leitstelleBuildingId);
         formData.append("commit", "Speichern");
 
